@@ -1,0 +1,30 @@
+<html>
+<body>
+
+<h2> MD5 hash function</h2>
+
+
+Enter Password to hash: 
+<input id="password" name="password"/><br/>
+<br/>
+<button type="button" onclick="MD5()">MD5 hash password</button>
+<br/><br/>
+MD5 hashed value: <div id="md5_password" name="md5_password"></div>
+
+
+
+<script src="http://titan.csit.rmit.edu.au/~e23700/cloud_security/lab10/crypto-js.min.js"></script>
+
+<script>
+
+	function MD5(){
+		var password = document.getElementById("password").value;
+		var md5_password = CryptoJS.MD5(password);
+
+		document.getElementById("md5_password").innerHTML = md5_password;
+	}
+
+</script>
+
+</body>
+</html>

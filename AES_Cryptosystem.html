@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html>
+  <body>
+    <h2>AES cryptosystem</h2>
+    <h3>AES Encryption</h3>
+    Plaintext:
+    <input id="plaintext" size="80" placeholder="Please enter 64 digit hexadecimal string"  /><br />
+    key:
+    <input style="margin-left:2.5em" id="key" size="80" placeholder="Please enter a Hexadecimal" value="73333737303331394073747564656e742e726d69742e6564752e617500000000"/><br />
+    <br />
+    <button type="button" onclick="encrypt()">Encrypt</button><br />
+    <br />
+    Encrypted result:<div id="ciphertext" />
+    </div>
+    <br />
+    <h3>AES Decryption</h3>
+    <br />
+    ciphertext:
+    <input id="cipherdecrypt" size="80" placeholder="Please enter the encrypted result" value="b00baf601d58c3325ef2abaafac9445384d0cf5bc17a945705ce5676d8293779"/><br />
+    key:
+    <input style="margin-left:3.0em" id="d_key" size="80" placeholder="Please enter hexadecimal" value="73333737303331394073747564656e742e726d69742e6564752e617500000000"/><br />
+    <br />
+    <button type="button" onclick="decrypt()">Decrypt</button><br />
+    <br />
+    Decrypted result: <div id="d_result" /><div>
+    
+
+    <script src="aes.js"></script>
+    <script>
+      //
+      // 2 main functions encrypt and decrypt
+      //
+      function encrypt() {
+        // get user input plaintext as hex string
+        var plaintext = document.getElementById("plaintext").value;
+        // check length of plaintext
+        //          p.g. 1 byte = 2 hex digit
+        if (plaintext.length % 32 != 0) {
+          alert(
+            "Your entered plaintext is " +
+              plaintext.length +
+              " hex digits (" +
+              plaintext.length * 4 +
+              " bits)!\n\n" +
+              " The length of plaintext must be a multiple of 32 hex digits (128 bits)!\n\nPlease re-enter the plaintext!"
+          );
+          document.getElementById("ciphertext").innerHTML =
+            "size of plaintext error";
+          return false;
+        }
+
+        // get user entered key
+        var key = document.getElementById("key").value;
+        // check length of key
+        //          p.g. 1 byte = 2 hex digit
+        //               key.length must be 64 hex digits = 256 bits
+        if (key.length != 64) {
+          alert(
+            "Your entered key is " +
+              key.length +
+              " hex digits (" +
+              key.length * 4 +
+              " bits)!\n\n" +
+              " The length of key must be 256 bits (64 hex digits)!\n\nPlease re-enter the key!"
+          );
+          document.getElementById("ciphertext").innerHTML = "size of key error";
+          return false;
+        }
+
+        // compute encryption result by using our api
+        var ciphertext = aes_256_ecb_encryption(plaintext, key);
+        
+        // print ciphertext on page
+        document.getElementById("ciphertext").innerHTML = ciphertext;
+      }
+
+      function decrypt() {
+          // get user input ciphertext as hex string
+          var ciphertext = document.getElementById('cipherdecrypt').value;
+        if (ciphertext.length % 32 != 0) {
+          alert(
+            "Your entered ciphertext is " +
+            ciphertext.length +
+            " hex digits (" +
+            ciphertext.length * 4 +
+            " bits)!\n\n" +
+            " The length of ciphertext must be a multiple of 32 hex digits (128 bits)!\n\nPlease re-enter the ciphertext!"
+          );
+          document.getElementById("cipherdecrypt").innerHTML =
+            "size of ciphertext error";
+          return false;
+        }
+          // get user entered key
+          var key = document.getElementById('d_key').value;
+          // check length of key
+          //          p.g. 1 byte = 2 hex digit
+          //               key.length must be 64 hex digits = 256 bits
+          if (key.length != 64) {
+            alert("Your entered key is " + key.length + " hex digits (" + key.length * 4 + " bits)!\n\n" + " The length of key must be 256 bits (64 hex digits)!\n\nPlease re-enter the key!");
+            document.getElementById("cipherdecrypt").innerHTML = "size of key error";
+            return false;
+          }
+
+          // compute decryption result by using our api
+          var decrypted_result = aes_256_ecb_decryption(ciphertext, key)
+         
+          // print encrypted result on the page
+          document.getElementById("d_result").innerHTML = decrypted_result;
+        }
+
+
+        //2 API's
+
+      // 2 inputs:
+      //       plaintext is a HEX string
+      //       key is a HEX string
+      // 1 output:
+      //       ciphertext is HEX string
+      function aes_256_ecb_encryption(plaintext, key) {
+        // Convert hex to bytes
+        //   using aesjs.utils.hex.toBytes (function in the aes library)
+        plaintext = aesjs.utils.hex.toBytes(plaintext);
+        key = aesjs.utils.hex.toBytes(key);
+
+        // AES_EBC encryption
+        //    functions in the aes libraray
+        //        can only accept key as Bytes
+        var AES_ECB = new aesjs.ModeOfOperation.ecb(key);
+        //        can only accept plaintext as bytes
+        //        return result is also in bytes
+        var encrypted_in_bytes = AES_ECB.encrypt(plaintext);
+
+        // convert encrypted_in_bytes back to hex
+        //      using aesjs.utils.hex.fromBytes (function in the aes library)
+        var ciphertext = aesjs.utils.hex.fromBytes(encrypted_in_bytes);
+
+        // return a HEX ciphertext
+        return ciphertext;
+      }
+
+      // 2 inputs:
+        //       ciphertext is a HEX string
+        //       key is a HEX string
+        // 1 output:
+        //       plaintext is HEX string
+        function aes_256_ecb_decryption(ciphertext, key) {
+          // Convert hex to bytes
+          //   using aesjs.utils.hex.toBytes (function in the aes library)
+          ciphertext = aesjs.utils.hex.toBytes(ciphertext);
+          key = aesjs.utils.hex.toBytes(key);
+          
+          // AES_CBC encryption
+          //    functions in the aes libraray
+          //        can only accept key as Bytes
+          var AES_ECB = new aesjs.ModeOfOperation.ecb(key);
+          //        can only accept plaintext as bytes
+          //        return result is also in bytes
+          var decrypted_in_bytes = AES_ECB.decrypt(ciphertext);
+
+          // convert encrypted_in_bytes back to hex
+          //      using aesjs.utils.hex.fromBytes (function in the aes library)
+          var plaintext = aesjs.utils.hex.fromBytes(decrypted_in_bytes);
+
+          // return a HEX plaintext
+          return plaintext;
+        }
+    </script>
+  </body>
+</html>
